@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { UserEntity } from './users/entities/user.entity';
+import { PostsModule } from './posts/posts.module';
+import { PostEntity } from './posts/entities/post.entity';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { UserEntity } from './users/entities/user.entity';
       username: 'root',
       password: '',
       database: 'rjournal',
-      entities: [UserEntity],
+      entities: [UserEntity, PostEntity],
       synchronize: true,
     }),
     UsersModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
