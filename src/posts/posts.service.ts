@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -20,15 +20,27 @@ export class PostsService {
     return this.repository.find();
   }
 
-  findOne(id: number) {
-    return this.repository.findOne(id);
+  async findOne(id: number) {
+    const find = await this.repository.findOne(+id);
+    if (!find) {
+      throw new NotFoundException('Статья не найдена');
+    }
+    return find;
   }
 
-  update(id: number, dto: UpdatePostDto) {
+  async update(id: number, dto: UpdatePostDto) {
+    const find = await this.repository.update(id, dto);
+    if (!find) {
+      throw new NotFoundException('Статья не найдена');
+    }
     return this.repository.update(id, dto);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const find = await this.repository.delete(id);
+    if (!find) {
+      throw new NotFoundException('Статья не найдена');
+    }
     return this.repository.delete(id);
   }
 }
