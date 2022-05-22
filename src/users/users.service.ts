@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -18,6 +19,10 @@ export class UsersService {
 
   findAll() {
     return this.repository.find();
+  }
+
+  findByCond(obj: LoginUserDto) {
+    return this.repository.findOne(obj);
   }
 
   async findOne(id: number) {
