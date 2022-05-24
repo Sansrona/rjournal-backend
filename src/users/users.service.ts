@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { SearchUserDto } from './dto/search-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -23,6 +24,28 @@ export class UsersService {
 
   findByCond(obj: LoginUserDto) {
     return this.repository.findOne(obj);
+  }
+  async search(dto: SearchUserDto) {
+    const qb = this.repository.createQueryBuilder('u');
+
+    qb.limit(dto.limit || 10);
+    qb.take(dto.take || 10);
+
+    if (dto.email) {
+      qb.andWhere(`u.email LIKE :email`);
+    }
+    if (dto.fullName) {
+      qb.andWhere(`u.fullName LIKE :fullName`);
+    }
+
+    qb.setParameters({
+      email: `%${dto.email}%`,
+      fullName: `%${dto.fullName}%`,
+    });
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total };
   }
 
   async findOne(id: number) {
