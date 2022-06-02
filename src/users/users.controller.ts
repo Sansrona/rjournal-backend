@@ -26,7 +26,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Request() req) {
-    return req.user;
+    return this.usersService.findOne(req.user.id);
   }
   @Get('search')
   search(@Query() dto: SearchUserDto) {
