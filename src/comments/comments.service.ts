@@ -12,16 +12,25 @@ export class CommentsService {
     private repository: Repository<CommentEntity>,
   ) {}
 
-  create(dto: CreateCommentDto) {
+  create(dto: CreateCommentDto, userId: number) {
     return this.repository.save({
       text: dto.text,
       post: { id: dto.postId },
-      user: { id: 2 },
+      user: { id: userId },
     });
   }
 
-  findAll() {
-    return this.repository.find();
+  async findAll() {
+    const result = await this.repository
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.post', 'post')
+      .leftJoinAndSelect('c.user', 'user')
+      .getMany();
+
+    return result.map((obj) => ({
+      ...obj,
+      post: { id: obj.post.id },
+    }));
   }
 
   findOne(id: number) {
