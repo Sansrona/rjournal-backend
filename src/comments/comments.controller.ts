@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/decorators/user.decorator';
@@ -26,8 +27,8 @@ export class CommentsController {
   }
 
   @Get()
-  findAll() {
-    return this.commentsService.findAll();
+  findAll(@Query() query: { postId: number }) {
+    return this.commentsService.findAll(+query.postId);
   }
 
   @Get(':id')

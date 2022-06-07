@@ -1,7 +1,7 @@
 import { CommentEntity } from './entities/comment.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryBuilder, Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
@@ -12,24 +12,31 @@ export class CommentsService {
     private repository: Repository<CommentEntity>,
   ) {}
 
-  create(dto: CreateCommentDto, userId: number) {
-    return this.repository.save({
+  async create(dto: CreateCommentDto, userId: number) {
+    const data = await this.repository.save({
       text: dto.text,
       post: { id: dto.postId },
       user: { id: userId },
     });
+
+    return this.repository.findOne({ id: data.id }, { relations: ['user'] });
   }
 
-  async findAll() {
-    const result = await this.repository
-      .createQueryBuilder('c')
+  async findAll(postId?: number) {
+    const result = this.repository.createQueryBuilder('c');
+
+    if (postId) {
+      result.where('c.postId = :postId', { postId });
+    }
+
+    const arr = await result
       .leftJoinAndSelect('c.post', 'post')
       .leftJoinAndSelect('c.user', 'user')
       .getMany();
 
-    return result.map((obj) => ({
+    return arr.map((obj) => ({
       ...obj,
-      post: { id: obj.post.id },
+      post: { id: obj.post.id, title: obj.post.title },
     }));
   }
 
